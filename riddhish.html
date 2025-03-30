@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Innovative UI - Clock & Color Changer</title>
+    <style>
+        
+        body {
+            text-align: center;
+            font-family: 'Poppins', sans-serif;
+            transition: background 0.3s, color 0.3s;
+            padding: 50px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            overflow: hidden;
+            position: relative;
+            color: white;
+        }
+
+       
+        .dark-mode {
+            background: #121212 !important;
+            color: #f5f5f5;
+        }
+
+        
+        .background-animation {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .circle {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            backdrop-filter: blur(15px);
+            animation: float 8s infinite alternate ease-in-out;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0) translateX(0); }
+            100% { transform: translateY(-30px) translateX(30px); }
+        }
+
+        
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            width: 90%;
+            max-width: 400px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+       
+        button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            padding: 12px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: 0.3s ease, transform 0.1s ease;
+            width: 90%;
+            max-width: 250px;
+            color: white;
+            backdrop-filter: blur(15px);
+            box-shadow: 0px 3px 8px rgba(255, 255, 255, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+
+        button:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        
+        .icon {
+            width: 24px;
+            height: 24px;
+        }
+
+    </style>
+</head>
+<body>
+
+ 
+    <div class="background-animation">
+        <div class="circle" style="top: 10%; left: 20%;"></div>
+        <div class="circle" style="top: 50%; left: 70%; width: 150px; height: 150px;"></div>
+        <div class="circle" style="top: 80%; left: 40%; width: 120px; height: 120px;"></div>
+    </div>
+
+    <div class="container">
+        <button id="toggleMode">
+            <img class="icon" src="https://cdn-icons-png.flaticon.com/512/1164/1164954.png" alt="Mode Icon">
+            Toggle Dark Mode
+        </button>
+        
+        <button id="toggleFormat">
+            <img class="icon" src="https://cdn-icons-png.flaticon.com/512/2947/2947432.png" alt="Clock Icon">
+            Toggle 12/24 Hour
+        </button>
+        
+        <button id="changeColor">
+            <img class="icon" src="https://cdn-icons-png.flaticon.com/512/2913/2913492.png" alt="Paint Icon">
+            Change Background Color
+        </button>
+
+        <h1>Digital Clock</h1>
+        <div id="clock"></div>
+        <div id="date"></div>
+        <p id="colorCode"></p>
+    </div>
+
+    <script>
+   
+        const modeButton = document.getElementById("toggleMode");
+        const formatButton = document.getElementById("toggleFormat");
+        const colorButton = document.getElementById("changeColor");
+        const body = document.body;
+        const clock = document.getElementById("clock");
+        const dateElement = document.getElementById("date");
+        const colorCode = document.getElementById("colorCode");
+
+      
+        if (localStorage.getItem("theme") === "dark") {
+            body.classList.add("dark-mode");
+        }
+
+        modeButton.addEventListener("click", () => {
+            body.classList.toggle("dark-mode");
+
+            if (body.classList.contains("dark-mode")) {
+                localStorage.setItem("theme", "dark");
+            } else {
+                localStorage.setItem("theme", "light");
+            }
+        });
+
+        let is12HourFormat = true;
+        formatButton.addEventListener("click", () => {
+            is12HourFormat = !is12HourFormat;
+            updateClock();
+        });
+
+       
+        function updateClock() {
+            const now = new Date();
+            let hours = now.getHours();
+            let minutes = now.getMinutes();
+            let seconds = now.getSeconds();
+            let ampm = "";
+
+            if (is12HourFormat) {
+                ampm = hours >= 12 ? "PM" : "AM";
+                hours = hours % 12 || 12;
+            }
+
+            hours = hours.toString().padStart(2, "0");
+            minutes = minutes.toString().padStart(2, "0");
+            seconds = seconds.toString().padStart(2, "0");
+
+            const timeString = is12HourFormat ? `${hours}:${minutes}:${seconds} ${ampm}` : `${hours}:${minutes}:${seconds}`;
+            clock.textContent = timeString;
+        }
+
+       
+        function updateDate() {
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            dateElement.textContent = now.toLocaleDateString(undefined, options);
+        }
+
+        colorButton.addEventListener("click", () => {
+            const randomColor = "#" + Math.floor(Math.random()*16777215).toString(16);
+            body.style.background = randomColor;
+            colorCode.textContent = `Background Color: ${randomColor}`;
+        });
+
+       
+        setInterval(updateClock, 1000);
+        updateClock();
+        updateDate();
+    </script>
+
+</body>
+</html>
